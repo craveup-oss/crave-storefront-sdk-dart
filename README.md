@@ -1,6 +1,6 @@
 # Crave Storefront SDK for Dart
 
-[![CI](https://github.com/craveup/crave-storefront-sdk-dart/actions/workflows/ci.yml/badge.svg)](https://github.com/craveup/crave-storefront-sdk-dart/actions/workflows/ci.yml)
+[![CI](https://github.com/craveup-oss/cravejs-storefront-sdk-dart/actions/workflows/ci.yml/badge.svg)](https://github.com/craveup-oss/cravejs-storefront-sdk-dart/actions/workflows/ci.yml)
 [![pub package](https://img.shields.io/pub/v/crave_storefront_sdk.svg)](https://pub.dev/packages/crave_storefront_sdk)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 

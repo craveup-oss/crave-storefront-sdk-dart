@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-10
 **Package:** `crave_storefront_sdk`
-**Canonical source:** `https://github.com/craveup/crave-storefront-sdk-dart`
+**Canonical source:** `https://github.com/craveup-oss/cravejs-storefront-sdk-dart`
 **Initial release:** `0.1.0` preview
 
 ## Goal
