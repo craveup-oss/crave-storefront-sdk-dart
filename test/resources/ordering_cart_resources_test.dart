@@ -105,6 +105,14 @@ void main() {
               'name': 'Tea',
               'price': '4.00',
               'images': <Object?>[],
+              'source': {
+                'kind': 'released',
+                'menuId': 'menu_01',
+                'locationId': 'location_01',
+                'channel': 'online',
+                'menuReleaseId': 'release_01'
+              },
+              'quantityUnit': 'serving',
               'modifierIds': <Object?>[],
             },
           ]),
@@ -185,6 +193,11 @@ void main() {
       'location_01',
       'cart_01',
       AddCartItemRequest(
+        context: ReleasedMenuContext(
+            menuId: 'menu_01',
+            menuReleaseId: 'release_01',
+            channel: MenuChannel.online),
+        quantityUnit: QuantityUnit.serving,
         productId: 'product_01',
         quantity: 1,
         itemUnavailableAction: ItemUnavailableAction.removeItem,

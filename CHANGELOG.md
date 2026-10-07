@@ -3,6 +3,16 @@
 All notable changes to this package are documented here. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased S1 adoption
+
+- Require released menu/channel/release context and browsing timing on product reads;
+  carry source and quantity unit through menus, products, recommendations and add-item requests.
+- Add anonymous configured-food preview and capability/revision-backed cart dietary preferences.
+- Decode server nutrient, tray yield, contributions, source identity, warning, missing-fact and
+  cart-summary evidence. Unknown values remain null; no client food evaluator is introduced.
+- Extend the bounded Dart manifest to 53 reviewed operations / 52 typed JSON methods. This is a
+  subset of current S1 APIs, not complete catering API adoption or pub.dev release proof.
+
 ## 0.2.0
 
 - Add anonymous `locations.getOrderingReadiness()` with sealed `OrderingReady` and

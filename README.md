@@ -84,7 +84,7 @@ Future<OrderingBootstrap> browseAndStartTakeout(
   if (readiness case OrderingUnavailable(:final reason)) {
     throw StateError(reason);
   }
-  final menu = await client.menus.getForLocation(locationId, menuOnly: true);
+  final menu = await client.menus.getForLocation(locationId, channel: MenuChannel.online, menuOnly: true);
   final orderingSession = await client.orderingSessions.start(
     locationId,
     StartOrderingSessionRequest.fresh(
@@ -128,6 +128,52 @@ unrelated origin.
 `locations.getOrderingReadiness()` is an anonymous, side-effect-free GET that defaults to takeout.
 Call it before displaying an ordering action. It returns `OrderingReady` with the authoritative
 timing or `OrderingUnavailable` with a customer-safe reason; it never creates a cart.
+
+## Released menus and configured food
+
+S1 product reads require the exact menu, publication channel, release and browsing timing.
+Choose a product from a returned menu and retain its `source.context` and `quantityUnit`;
+never look up a product globally by ID. The same product can differ between two menus.
+
+```dart
+final product = await client.products.getForLocation(
+  locationId,
+  menuProduct.id,
+  context: menuProduct.source.context,
+  menuOnly: true,
+);
+final preview = await client.products.previewConfiguration(
+  locationId,
+  product.id,
+  ConfigurationPreviewRequest(
+    context: product.source.context,
+    quantity: 2,
+    quantityUnit: product.quantityUnit,
+    selections: selectedGroups,
+    preferences: DietaryPreferenceContext(
+      preferences: [DietaryPreference.vegan],
+      avoidAllergenIds: [AllergenId.milk],
+    ),
+  ),
+);
+```
+
+Pass the same context/unit in `AddCartItemRequest`. `carts.updateDietaryPreferences`
+uses the normal capability, revision and stable retry-key owner; empty lists clear choices.
+Render `StorefrontCart.foodSummary` and each line's `food` from server responses. A
+`ConfiguredCartLineFood` contains the accepted released evaluation; an
+`UnavailableCartLineFood` explains missing historical/current release evidence.
+
+Null nutrient values mean **unknown**, and remain unknown in per-serving, per-tray
+and line totals. Tray yield and all totals come from the server. Dietary/allergen
+warnings never change selections, kitchen instructions, or prices. Draft sources
+remain distinct from released sources. The SDK has no nutrition calculation engine.
+
+This is source adoption against core S1 merge
+`679f2c89e5802c41cb8dfb4b7cdeeed1150027bc`. The operation manifest lists the bounded
+Dart subset (52 JSON operations plus one excluded navigation redirect), not all 79
+current TypeScript/catering operations. This branch does not establish pub.dev
+publication, deployed API health, or configured Flutter/browser/device acceptance.
 
 ## Session storage and identity
 

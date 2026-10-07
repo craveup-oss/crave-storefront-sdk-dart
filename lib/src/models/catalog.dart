@@ -1,4 +1,5 @@
 import '../json/json_reader.dart';
+import 'food.dart';
 
 /// A location's menus and popular products.
 final class MenuBundle {
@@ -32,6 +33,7 @@ final class Menu {
   /// Creates an immutable menu.
   Menu({
     required this.id,
+    required this.source,
     required this.name,
     required this.isActive,
     required this.time,
@@ -46,6 +48,7 @@ final class Menu {
 
   factory Menu._fromReader(JsonReader reader) => Menu(
         id: reader.string('id'),
+        source: ReleasedFoodSource.fromJson(reader.object('source').asMap()),
         name: reader.string('name'),
         isActive: reader.boolean('isActive'),
         time: reader.string('time'),
@@ -57,6 +60,9 @@ final class Menu {
 
   /// Stable menu identifier.
   final String id;
+
+  /// Released menu identity; reuse its context for product/cart operations.
+  final ReleasedFoodSource source;
 
   /// Customer-facing menu name.
   final String name;
@@ -111,6 +117,8 @@ final class MenuProduct {
   /// Creates an immutable menu product.
   MenuProduct({
     required this.id,
+    required this.source,
+    required this.quantityUnit,
     required this.name,
     required this.price,
     required this.displayPrice,
@@ -133,6 +141,8 @@ final class MenuProduct {
     final nutritionReader = reader.nullableObject('nutrition');
     return MenuProduct(
       id: reader.string('id'),
+      source: ReleasedFoodSource.fromJson(reader.object('source').asMap()),
+      quantityUnit: QuantityUnit.values.byName(reader.string('quantityUnit')),
       name: reader.string('name'),
       price: reader.string('price'),
       displayPrice: reader.string('displayPrice'),
@@ -149,6 +159,12 @@ final class MenuProduct {
 
   /// Stable product identifier.
   final String id;
+
+  /// Released menu identity; reuse its context for product/cart operations.
+  final ReleasedFoodSource source;
+
+  /// Quantity unit supplied by the server.
+  final QuantityUnit quantityUnit;
 
   /// Customer-facing product name.
   final String name;
@@ -183,6 +199,8 @@ final class Product {
   /// Creates immutable product details.
   Product({
     required this.id,
+    required this.source,
+    required this.quantityUnit,
     required this.locationId,
     required this.name,
     required this.price,
@@ -204,6 +222,8 @@ final class Product {
     final nutritionReader = reader.nullableObject('nutrition');
     return Product(
       id: reader.string('id'),
+      source: ReleasedFoodSource.fromJson(reader.object('source').asMap()),
+      quantityUnit: QuantityUnit.values.byName(reader.string('quantityUnit')),
       locationId: reader.string('locationId'),
       name: reader.string('name'),
       price: reader.string('price'),
@@ -223,6 +243,12 @@ final class Product {
 
   /// Stable product identifier.
   final String id;
+
+  /// Released menu identity; reuse its context for product/cart operations.
+  final ReleasedFoodSource source;
+
+  /// Quantity unit supplied by the server.
+  final QuantityUnit quantityUnit;
 
   /// Owning location identifier.
   final String locationId;
@@ -263,6 +289,8 @@ final class CartRecommendation {
   /// Creates an immutable cart recommendation.
   CartRecommendation({
     required this.id,
+    required this.source,
+    required this.quantityUnit,
     required this.name,
     required this.price,
     required Iterable<String> images,
@@ -281,6 +309,8 @@ final class CartRecommendation {
   factory CartRecommendation._fromReader(JsonReader reader) =>
       CartRecommendation(
         id: reader.string('id'),
+        source: ReleasedFoodSource.fromJson(reader.object('source').asMap()),
+        quantityUnit: QuantityUnit.values.byName(reader.string('quantityUnit')),
         name: reader.string('name'),
         price: reader.string('price'),
         description: reader.nullableString('description'),
@@ -291,6 +321,12 @@ final class CartRecommendation {
 
   /// Stable product identifier.
   final String id;
+
+  /// Released menu identity; reuse its context for product/cart operations.
+  final ReleasedFoodSource source;
+
+  /// Quantity unit supplied by the server.
+  final QuantityUnit quantityUnit;
 
   /// Customer-facing product name.
   final String name;

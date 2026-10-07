@@ -101,7 +101,7 @@ void main() {
             ),
           '/api/v1/storefront/locations/location_01/menus' =>
             _fixtureResponse('catalog.json'),
-          '/api/v1/storefront/locations/location_01/products/product%2Fone' =>
+          '/api/v1/storefront/locations/location_01/products/product_01' =>
             _fixtureResponse('product.json'),
           _ => http.Response('{}', 404),
         };
@@ -122,11 +122,17 @@ void main() {
     final gratuity = await client.locations.getGratuity('location_01');
     final menus = await client.menus.getForLocation(
       'location_01',
+      channel: MenuChannel.online,
       menuOnly: true,
     );
     final product = await client.products.getForLocation(
       'location_01',
-      'product/one',
+      'product_01',
+      context: ReleasedMenuContext(
+          menuId: 'menu_01',
+          menuReleaseId: 'release_01',
+          channel: MenuChannel.online),
+      menuOnly: true,
     );
 
     expect(merchant.id, 'merchant_01');
@@ -150,7 +156,7 @@ void main() {
     );
     expect(
       requests[6].url.queryParameters,
-      {'menuOnly': 'true'},
+      {'menuOnly': 'true', 'channel': 'online'},
     );
     client.close();
   });
@@ -195,7 +201,8 @@ void main() {
     );
 
     await expectLater(
-      client.menus.getForLocation('location_01', orderDate: '2026-08-10'),
+      client.menus.getForLocation('location_01',
+          channel: MenuChannel.online, orderDate: '2026-08-10'),
       throwsA(isA<StorefrontConfigurationException>()),
     );
     client.close();

@@ -9,7 +9,9 @@
   "restaurantDisplayName": "Example Tea Downtown",
   "fulfilmentMethod": "takeout",
   "fulfillmentIdentifier": null,
-  "metadata": {"channel": "flutter"},
+  "metadata": {
+    "channel": "flutter"
+  },
   "pickupType": "ASAP",
   "orderDate": "2026-08-10",
   "orderTime": "12:00",
@@ -63,7 +65,13 @@
       "categoryId": null,
       "specialInstructions": null,
       "itemUnavailableAction": "future_action",
-      "selections": []
+      "selections": [],
+      "food": {
+        "state": "unavailable",
+        "reason": "HISTORICAL_MENU_RELEASE_UNAVAILABLE",
+        "source": null,
+        "result": null
+      }
     }
   ],
   "fees": {
@@ -79,5 +87,29 @@
     "paymentProcessingFeeFix": "0.00"
   },
   "deliveryInfo": null,
-  "futureServerField": {"ignored": true}
+  "futureServerField": {
+    "ignored": true
+  },
+  "dietaryPreferences": {
+    "preferences": [],
+    "avoidAllergenIds": []
+  },
+  "foodSummary": {
+    "unavailableLineIds": [
+      "item_01"
+    ],
+    "totals": {
+      "caloriesKcal": null,
+      "proteinGrams": null,
+      "carbohydrateGrams": null,
+      "fatGrams": null,
+      "fiberGrams": null,
+      "sugarGrams": null,
+      "saturatedFatGrams": null,
+      "sodiumMilligrams": null
+    },
+    "completeness": "unknown",
+    "missing": [],
+    "warnings": []
+  }
 }

@@ -13,6 +13,12 @@ void main() {
       }),
       DistanceRequest(lat: 0, lng: 0),
       CartRecommendation(
+        source: const ReleasedFoodSource(
+            menuId: 'menu_01',
+            locationId: 'location_01',
+            channel: MenuChannel.online,
+            menuReleaseId: 'release_01'),
+        quantityUnit: QuantityUnit.serving,
         id: 'product_01',
         name: 'Tea',
         price: '1.00',

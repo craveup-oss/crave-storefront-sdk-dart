@@ -16,17 +16,17 @@ void main() {
   });
 
   group('storefront operation manifest', () {
-    test('records the exact reviewed route inventory', () {
+    test('records the reviewed Dart subset, not full current API parity', () {
       expect(manifest['schemaVersion'], 1);
       expect(manifest['basePath'], '/api/v1/storefront');
       expect(
         manifest['source'],
         containsPair(
           'commit',
-          '92be01efab37f4c0b59fa717438c734497414e5e',
+          '679f2c89e5802c41cb8dfb4b7cdeeed1150027bc',
         ),
       );
-      expect(operations, hasLength(51));
+      expect(operations, hasLength(53));
 
       final operationIds = operations
           .map((operation) => operation['operationId']! as String)
@@ -37,11 +37,11 @@ void main() {
           )
           .toSet();
 
-      expect(operationIds, hasLength(51),
+      expect(operationIds, hasLength(53),
           reason: 'Operation IDs must be unique.');
       expect(
         methodPaths,
-        hasLength(51),
+        hasLength(53),
         reason: 'Every HTTP method and path pair must be unique.',
       );
     });
@@ -88,7 +88,7 @@ void main() {
       }
     });
 
-    test('exposes 50 typed JSON operations and excludes only the redirect', () {
+    test('exposes 52 typed JSON operations and excludes only the redirect', () {
       final typedJson = operations
           .where((operation) => operation['sdkMethod'] is String)
           .toList();
@@ -99,10 +99,10 @@ void main() {
           .map((operation) => operation['sdkMethod']! as String)
           .toSet();
 
-      expect(typedJson, hasLength(50));
+      expect(typedJson, hasLength(52));
       expect(
         sdkMethods,
-        hasLength(50),
+        hasLength(52),
         reason: 'Every typed operation must have one unique public SDK method.',
       );
       expect(excluded, hasLength(1));

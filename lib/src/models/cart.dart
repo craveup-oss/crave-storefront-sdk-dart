@@ -1,6 +1,7 @@
 import '../json/json_reader.dart';
 import 'catalog.dart';
 import 'common.dart';
+import 'food.dart';
 
 /// Fulfillment method values published by the SDK.
 ///
@@ -77,6 +78,8 @@ final class StorefrontCart {
     required this.locationId,
     required this.status,
     required this.revision,
+    required this.dietaryPreferences,
+    required this.foodSummary,
     required this.fulfilmentMethod,
     required this.totalQuantity,
     required Iterable<CartItem> items,
@@ -148,6 +151,10 @@ final class StorefrontCart {
       status: reader.string('status'),
       lockedAt: reader.nullableTimestamp('lockedAt'),
       revision: reader.integer('revision'),
+      dietaryPreferences: DietaryPreferenceContext.fromJson(
+          reader.object('dietaryPreferences').asMap()),
+      foodSummary:
+          CartFoodSummary.fromJson(reader.object('foodSummary').asMap()),
       expiresAt: reader.nullableTimestamp('expiresAt'),
       restaurantDisplayName: reader.nullableString('restaurantDisplayName'),
       fulfilmentMethod: reader.string('fulfilmentMethod'),
@@ -228,6 +235,12 @@ final class StorefrontCart {
 
   /// Optimistic-concurrency revision.
   final int revision;
+
+  /// Server-persisted customer preferences.
+  final DietaryPreferenceContext dietaryPreferences;
+
+  /// Server total nutrition and warnings.
+  final CartFoodSummary foodSummary;
 
   /// Expiration timestamp wire value.
   final String? expiresAt;
@@ -373,6 +386,7 @@ final class CartItem {
   /// Creates an immutable cart item.
   CartItem({
     required this.id,
+    required this.food,
     required this.productId,
     required this.name,
     required this.price,
@@ -398,8 +412,15 @@ final class CartItem {
 
   factory CartItem._fromReader(JsonReader reader) {
     final product = reader.nullableObject('product');
+    final food = CartLineFoodEvidence.fromJson(reader.object('food').asMap());
+    if (food is ConfiguredCartLineFood &&
+        food.result.quantity != reader.integer('quantity')) {
+      throw const FormatException(
+          'Cart line quantity differs from food evidence.');
+    }
     return CartItem(
       id: reader.string('id'),
+      food: food,
       productId: reader.string('productId'),
       name: reader.string('name'),
       description: reader.nullableString('description'),
@@ -423,6 +444,9 @@ final class CartItem {
 
   /// Stable cart-item identifier.
   final String id;
+
+  /// Server food evaluation or explicit unavailable evidence.
+  final CartLineFoodEvidence food;
 
   /// Stable product identifier.
   final String productId;
@@ -891,6 +915,8 @@ final class AddCartItemRequest {
   /// Creates a validated add-item request.
   AddCartItemRequest({
     required this.productId,
+    required this.context,
+    required this.quantityUnit,
     required this.quantity,
     required this.itemUnavailableAction,
     required List<SelectedModifierGroup> selections,
@@ -909,6 +935,12 @@ final class AddCartItemRequest {
   /// Product identifier.
   final String productId;
 
+  /// Exact published menu identity; no global product fallback.
+  final ReleasedMenuContext context;
+
+  /// Serving or tray quantity units.
+  final QuantityUnit quantityUnit;
+
   /// Item quantity.
   final int quantity;
 
@@ -926,6 +958,8 @@ final class AddCartItemRequest {
 
   /// Serializes only fields accepted by the add-item endpoint.
   Map<String, Object?> toJson() => <String, Object?>{
+        ...context.toJson(),
+        'quantityUnit': quantityUnit.wireValue,
         'productId': productId,
         'quantity': quantity,
         if (specialInstructions != null)

@@ -3,7 +3,7 @@
   "basePath": "/api/v1/storefront",
   "source": {
     "repository": "https://github.com/craveup/craveup-turborepo",
-    "commit": "92be01efab37f4c0b59fa717438c734497414e5e"
+    "commit": "679f2c89e5802c41cb8dfb4b7cdeeed1150027bc"
   },
   "operations": [
     {
@@ -516,6 +516,27 @@
       "revision": "none",
       "etag": false,
       "sdkMethod": "receipts.get"
+    },
+    {
+      "operationId": "storefrontPreviewProductConfiguration",
+      "method": "POST",
+      "path": "/api/v1/storefront/locations/:locationId/products/:productId/configuration-preview",
+      "auth": "public",
+      "idempotency": false,
+      "revision": "none",
+      "etag": false,
+      "sdkMethod": "products.previewConfiguration"
+    },
+    {
+      "operationId": "storefrontUpdateCartDietaryPreferences",
+      "method": "PUT",
+      "path": "/api/v1/storefront/locations/:locationId/carts/:cartId/dietary-preferences",
+      "auth": "cart",
+      "idempotency": true,
+      "revision": "cart",
+      "etag": true,
+      "sdkMethod": "carts.updateDietaryPreferences"
     }
-  ]
+  ],
+  "scope": "Reviewed Dart operation subset. Does not claim full current TypeScript/catering API parity."
 }

@@ -78,7 +78,7 @@ void main() {
 
       for (final contents in [readmeContents, exampleContents]) {
         expect(contents, contains('client.locations.getOrderingReadiness'));
-        expect(contents, contains('client.menus.getForLocation'));
+        expect(contents, contains(RegExp(r'client\.menus\s*\.getForLocation')));
         expect(contents, contains('client.orderingSessions.start'));
         expect(contents, contains('StartOrderingSessionRequest.fresh'));
         expect(contents, contains('final menu = await client.menus'));

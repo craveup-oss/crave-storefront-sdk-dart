@@ -31,7 +31,8 @@ Future<OrderingBootstrap> browseAndStartTakeout(
   if (readiness case OrderingUnavailable(:final reason)) {
     throw StateError(reason);
   }
-  final menu = await client.menus.getForLocation(locationId, menuOnly: true);
+  final menu = await client.menus
+      .getForLocation(locationId, channel: MenuChannel.online, menuOnly: true);
   final orderingSession = await client.orderingSessions.start(
     locationId,
     StartOrderingSessionRequest.fresh(
