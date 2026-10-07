@@ -6,6 +6,12 @@ void main() {
     final modifierIds = <String>['modifier-1'];
     final images = <String>['https://cdn.example.test/product.png'];
     final menuProduct = MenuProduct(
+      source: const ReleasedFoodSource(
+          menuId: 'menu_01',
+          locationId: 'location_01',
+          channel: MenuChannel.online,
+          menuReleaseId: 'release_01'),
+      quantityUnit: QuantityUnit.serving,
       id: 'product-1',
       name: 'Tea',
       price: '4.00',
@@ -27,6 +33,11 @@ void main() {
 
     final categories = <MenuCategory>[category];
     final menu = Menu(
+      source: const ReleasedFoodSource(
+          menuId: 'menu_01',
+          locationId: 'location_01',
+          channel: MenuChannel.online,
+          menuReleaseId: 'release_01'),
       id: 'menu-1',
       name: 'Main',
       isActive: true,
@@ -69,6 +80,12 @@ void main() {
     final productImages = <String>['https://cdn.example.test/product.png'];
     final productModifiers = <ModifierGroup>[modifierGroup];
     final product = Product(
+      source: const ReleasedFoodSource(
+          menuId: 'menu_01',
+          locationId: 'location_01',
+          channel: MenuChannel.online,
+          menuReleaseId: 'release_01'),
+      quantityUnit: QuantityUnit.serving,
       id: 'product-1',
       locationId: 'location-1',
       name: 'Tea',
@@ -86,6 +103,12 @@ void main() {
     final recommendationImages = <String>['recommendation.png'];
     final recommendationModifierIds = <String>['modifier-1'];
     final recommendation = CartRecommendation(
+      source: const ReleasedFoodSource(
+          menuId: 'menu_01',
+          locationId: 'location_01',
+          channel: MenuChannel.online,
+          menuReleaseId: 'release_01'),
+      quantityUnit: QuantityUnit.serving,
       id: 'product-1',
       name: 'Tea',
       price: '4.00',
@@ -140,6 +163,8 @@ void main() {
 
     final selections = <CartModifierGroup>[modifierGroup];
     final item = CartItem(
+      food: const UnavailableCartLineFood(
+          reason: 'HISTORICAL_MENU_RELEASE_UNAVAILABLE', source: null),
       id: 'item-1',
       productId: 'product-1',
       name: 'Tea',
@@ -155,6 +180,24 @@ void main() {
     final nestedMetadata = <Object?>['mobile'];
     final metadata = <String, Object?>{'channels': nestedMetadata};
     final cart = StorefrontCart(
+      dietaryPreferences:
+          DietaryPreferenceContext(preferences: [], avoidAllergenIds: []),
+      foodSummary: CartFoodSummary.fromJson({
+        'unavailableLineIds': ['item_01'],
+        'totals': {
+          'caloriesKcal': null,
+          'proteinGrams': null,
+          'carbohydrateGrams': null,
+          'fatGrams': null,
+          'fiberGrams': null,
+          'sugarGrams': null,
+          'saturatedFatGrams': null,
+          'sodiumMilligrams': null
+        },
+        'completeness': 'unknown',
+        'missing': [],
+        'warnings': []
+      }),
       id: 'cart-1',
       locationId: 'location-1',
       status: 'open',

@@ -17,19 +17,38 @@
               "price": "5.00",
               "displayPrice": "$5.00",
               "currency": "usd",
-              "modifierIds": ["modifier_01"],
+              "modifierIds": [
+                "modifier_01"
+              ],
               "description": null,
               "availability": "available",
               "images": [],
               "nutrition": {
                 "calorieCount": 12.5,
-                "dietaryPreferences": ["vegan"],
+                "dietaryPreferences": [
+                  "vegan"
+                ],
                 "ingredients": null
-              }
+              },
+              "source": {
+                "kind": "released",
+                "menuId": "menu_01",
+                "locationId": "location_01",
+                "channel": "online",
+                "menuReleaseId": "release_01"
+              },
+              "quantityUnit": "serving"
             }
           ]
         }
-      ]
+      ],
+      "source": {
+        "kind": "released",
+        "menuId": "menu_01",
+        "locationId": "location_01",
+        "channel": "online",
+        "menuReleaseId": "release_01"
+      }
     }
   ],
   "popularProducts": [],

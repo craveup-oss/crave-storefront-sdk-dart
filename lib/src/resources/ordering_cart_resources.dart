@@ -5,6 +5,7 @@ import '../http/transport.dart';
 import '../models/analytics.dart';
 import '../models/cart.dart';
 import '../models/catalog.dart';
+import '../models/food.dart';
 import '../models/ordering.dart';
 import '../runtime/cart_session_runtime.dart';
 import '../runtime/request_runtime.dart';
@@ -391,6 +392,19 @@ final class CartsClient {
         body: request.toJson(),
         options: options,
       );
+
+  /// Updates server-persisted advice preferences with normal cart concurrency.
+  Future<StorefrontCart> updateDietaryPreferences(String locationId,
+          String cartId, DietaryPreferenceContext preferences,
+          {StorefrontRequestOptions? options}) =>
+      _cartMutation(
+          method: 'PUT',
+          locationId: locationId,
+          cartId: cartId,
+          suffix: const ['dietary-preferences'],
+          routeSuffix: '/dietary-preferences',
+          body: preferences.toJson(),
+          options: options);
 
   /// Applies a public discount code.
   Future<StorefrontCart> applyDiscount(

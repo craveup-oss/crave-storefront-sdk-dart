@@ -1,5 +1,5 @@
 .github/
-docs/superpowers/
+docs/
 test/
 tool/
 .dart_tool/

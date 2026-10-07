@@ -4,6 +4,7 @@ export 'catalog.dart';
 export 'checkout.dart';
 export 'common.dart';
 export 'customer.dart';
+export 'food.dart';
 export 'location.dart';
 export 'loyalty.dart';
 export 'merchant.dart';

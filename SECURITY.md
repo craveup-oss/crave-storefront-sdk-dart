@@ -12,7 +12,7 @@ Security fixes are provided for the latest published `0.1.x` preview.
 ## Report a vulnerability privately
 
 Do not open a public issue for a suspected vulnerability. Use the repository's
-[private vulnerability report](https://github.com/craveup/crave-storefront-sdk-dart/security/advisories/new)
+[private vulnerability report](https://github.com/craveup-oss/cravejs-storefront-sdk-dart/security/advisories/new)
 and include:
 
 - the affected package version and platform;

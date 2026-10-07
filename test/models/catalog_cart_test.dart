@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:crave_storefront_sdk/src/models/cart.dart';
 import 'package:crave_storefront_sdk/src/models/catalog.dart';
 import 'package:crave_storefront_sdk/src/models/common.dart';
+import 'package:crave_storefront_sdk/src/models/food.dart';
 import 'package:test/test.dart';
 
 Map<String, Object?> fixture(String name) {
@@ -44,6 +45,14 @@ void main() {
         'description': null,
         'availability': 'available',
         'images': <Object?>[],
+        'source': {
+          'kind': 'released',
+          'menuId': 'menu_01',
+          'locationId': 'location_01',
+          'channel': 'online',
+          'menuReleaseId': 'release_01'
+        },
+        'quantityUnit': 'serving',
         'modifierIds': <Object?>[],
       });
 
@@ -124,19 +133,46 @@ void main() {
       expect(request.toJson(), isNot(contains('fulfilmentMethod')));
     });
 
-    test('supports every cart fulfillment method wire value', () {
+    test('preserves published fulfillment methods for source compatibility',
+        () {
       expect(
-        FulfillmentMethod.robotDelivery.wireValue,
-        'robot_delivery',
+        FulfillmentMethod.values.map((value) => value.wireValue),
+        <String>[
+          'takeout',
+          'table_side',
+          'room_service',
+          'delivery',
+          'robot_delivery',
+          'in_course_delivery',
+        ],
       );
+    });
+
+    test('rejects deprecated fulfillment methods in current cart requests', () {
+      final unsupported = FulfillmentMethod.values.firstWhere(
+        (value) => value.wireValue == 'in_course_delivery',
+      );
+
+      expect(unsupported.isStorefrontRequestSupported, isFalse);
       expect(
-        FulfillmentMethod.inCourseDelivery.wireValue,
-        'in_course_delivery',
+        () => UpdateCartRequest(fulfillmentMethod: unsupported).toJson(),
+        throwsA(
+          isA<ArgumentError>().having(
+            (error) => error.message,
+            'message',
+            isNot(contains(unsupported.wireValue)),
+          ),
+        ),
       );
     });
 
     test('allowlists add-item request fields recursively', () {
       final request = AddCartItemRequest(
+        context: ReleasedMenuContext(
+            menuId: 'menu_01',
+            menuReleaseId: 'release_01',
+            channel: MenuChannel.online),
+        quantityUnit: QuantityUnit.serving,
         productId: 'product_01',
         quantity: 2,
         itemUnavailableAction: ItemUnavailableAction.removeItem,
@@ -151,6 +187,10 @@ void main() {
       );
 
       expect(request.toJson().keys, <String>[
+        'menuId',
+        'menuReleaseId',
+        'channel',
+        'quantityUnit',
         'productId',
         'quantity',
         'itemUnavailableAction',
@@ -163,6 +203,11 @@ void main() {
     test('rejects invalid item quantities before transport', () {
       expect(
         () => AddCartItemRequest(
+          context: ReleasedMenuContext(
+              menuId: 'menu_01',
+              menuReleaseId: 'release_01',
+              channel: MenuChannel.online),
+          quantityUnit: QuantityUnit.serving,
           productId: 'product_01',
           quantity: 0,
           itemUnavailableAction: ItemUnavailableAction.removeItem,

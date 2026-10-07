@@ -1,6 +1,8 @@
 import '../errors.dart';
 import '../http/transport.dart';
+import '../models/cart.dart';
 import '../models/catalog.dart';
+import '../models/food.dart';
 import '../models/location.dart';
 import '../models/merchant.dart';
 import '../runtime/request_runtime.dart';
@@ -106,6 +108,30 @@ final class LocationsClient {
     return response.data;
   }
 
+  /// Checks ordering availability without creating a cart.
+  Future<OrderingReadiness> getOrderingReadiness(
+    String locationId, {
+    FulfillmentMethod fulfillmentMethod = FulfillmentMethod.takeout,
+    StorefrontRequestOptions? options,
+  }) async {
+    if (!fulfillmentMethod.isStorefrontRequestSupported) {
+      throw ArgumentError(
+        'fulfillmentMethod must be accepted by the ordering-readiness route.',
+      );
+    }
+    final request = ResourceRequestOptions(options);
+    final response = await _transport.send<OrderingReadiness>(
+      method: 'GET',
+      pathSegments: ['locations', locationId, 'ordering-readiness'],
+      routeTemplate: '/locations/:locationId/ordering-readiness',
+      query: {'fulfillmentMethod': fulfillmentMethod.wireValue},
+      decoder: (value) => OrderingReadiness.fromJson(decodeJsonObject(value)),
+      timeout: request.timeout,
+      cancellationToken: request.cancellationToken,
+    );
+    return response.data;
+  }
+
   /// Gets the location's public gratuity configuration.
   Future<GratuityConfiguration> getGratuity(
     String locationId, {
@@ -137,6 +163,7 @@ final class MenusClient {
   /// [orderTime] for availability-aware results.
   Future<MenuBundle> getForLocation(
     String locationId, {
+    required MenuChannel channel,
     String? orderDate,
     String? orderTime,
     bool menuOnly = false,
@@ -153,6 +180,7 @@ final class MenusClient {
       pathSegments: ['locations', locationId, 'menus'],
       routeTemplate: '/locations/:locationId/menus',
       query: {
+        'channel': channel.wireValue,
         if (menuOnly) 'menuOnly': true,
         if (orderDate != null) 'orderDate': orderDate,
         if (orderTime != null) 'orderTime': orderTime,
@@ -175,17 +203,78 @@ final class ProductsClient {
   Future<Product> getForLocation(
     String locationId,
     String productId, {
+    required ReleasedMenuContext context,
+    String? orderDate,
+    String? orderTime,
+    bool menuOnly = false,
     StorefrontRequestOptions? options,
   }) async {
+    if (!menuOnly && (orderDate == null || orderTime == null)) {
+      throw const StorefrontConfigurationException(
+          'Product requests require menuOnly=true or order date/time.');
+    }
     final request = ResourceRequestOptions(options);
     final response = await _transport.send<Product>(
       method: 'GET',
       pathSegments: ['locations', locationId, 'products', productId],
       routeTemplate: '/locations/:locationId/products/:productId',
+      query: {
+        ...context.toJson(),
+        if (menuOnly) 'menuOnly': true,
+        if (orderDate != null) 'orderDate': orderDate,
+        if (orderTime != null) 'orderTime': orderTime
+      },
       decoder: (value) => Product.fromJson(decodeJsonObject(value)),
       timeout: request.timeout,
       cancellationToken: request.cancellationToken,
     );
+    final source = response.data.source;
+    if (response.data.id != productId ||
+        response.data.locationId != locationId ||
+        source.locationId != locationId ||
+        source.menuId != context.menuId ||
+        source.menuReleaseId != context.menuReleaseId ||
+        source.channel != context.channel) {
+      throw const StorefrontDecodingException(
+          method: 'GET',
+          routeTemplate: '/locations/:locationId/products/:productId');
+    }
+    return response.data;
+  }
+
+  /// Previews a configuration anonymously using server calculations.
+  Future<ConfiguredFoodEvaluation> previewConfiguration(
+      String locationId, String productId, ConfigurationPreviewRequest payload,
+      {StorefrontRequestOptions? options}) async {
+    final request = ResourceRequestOptions(options);
+    const route =
+        '/locations/:locationId/products/:productId/configuration-preview';
+    final response = await _transport.send<ConfiguredFoodEvaluation>(
+        method: 'POST',
+        pathSegments: [
+          'locations',
+          locationId,
+          'products',
+          productId,
+          'configuration-preview'
+        ],
+        routeTemplate: route,
+        body: payload.toJson(),
+        decoder: (value) =>
+            ConfiguredFoodEvaluation.fromJson(decodeJsonObject(value)),
+        timeout: request.timeout,
+        cancellationToken: request.cancellationToken);
+    final source = response.data.source;
+    if (source is! ReleasedFoodSource ||
+        source.locationId != locationId ||
+        source.menuId != payload.context.menuId ||
+        source.menuReleaseId != payload.context.menuReleaseId ||
+        source.channel != payload.context.channel ||
+        response.data.quantity != payload.quantity ||
+        response.data.quantityUnit != payload.quantityUnit) {
+      throw const StorefrontDecodingException(
+          method: 'POST', routeTemplate: route);
+    }
     return response.data;
   }
 }

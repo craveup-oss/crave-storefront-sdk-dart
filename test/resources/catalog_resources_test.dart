@@ -77,6 +77,18 @@ void main() {
               }),
               200,
             ),
+          '/api/v1/storefront/locations/location_01/ordering-readiness' =>
+            http.Response(
+              jsonEncode({
+                'ready': true,
+                'fulfillmentMethod': 'delivery',
+                'pickupType': 'LATER',
+                'orderDate': '2026-08-11',
+                'orderTime': '18:30',
+                'estimatedReadyTime': '2026-08-11T22:30:00Z',
+              }),
+              200,
+            ),
           '/api/v1/storefront/locations/location_01/gratuity' => http.Response(
               jsonEncode({
                 'enabled': true,
@@ -89,7 +101,7 @@ void main() {
             ),
           '/api/v1/storefront/locations/location_01/menus' =>
             _fixtureResponse('catalog.json'),
-          '/api/v1/storefront/locations/location_01/products/product%2Fone' =>
+          '/api/v1/storefront/locations/location_01/products/product_01' =>
             _fixtureResponse('product.json'),
           _ => http.Response('{}', 404),
         };
@@ -103,33 +115,81 @@ void main() {
       DistanceRequest(lat: 40, lng: -74),
     );
     final times = await client.locations.listTimeIntervals('location_01');
+    final readiness = await client.locations.getOrderingReadiness(
+      'location_01',
+      fulfillmentMethod: FulfillmentMethod.delivery,
+    );
     final gratuity = await client.locations.getGratuity('location_01');
     final menus = await client.menus.getForLocation(
       'location_01',
+      channel: MenuChannel.online,
       menuOnly: true,
     );
     final product = await client.products.getForLocation(
       'location_01',
-      'product/one',
+      'product_01',
+      context: ReleasedMenuContext(
+          menuId: 'menu_01',
+          menuReleaseId: 'release_01',
+          channel: MenuChannel.online),
+      menuOnly: true,
     );
 
     expect(merchant.id, 'merchant_01');
     expect(location.id, 'location_01');
     expect(distance.distance.miles, 1.2);
     expect(times.orderDays, hasLength(1));
+    expect(readiness, isA<OrderingReady>());
+    expect(readiness.fulfillmentMethod, FulfillmentMethod.delivery);
     expect(gratuity.enabled, isTrue);
     expect(menus.menus, hasLength(1));
     expect(product.id, 'product_01');
     expect(tokenCalls, 0);
-    expect(requests, hasLength(7));
+    expect(requests, hasLength(8));
     for (final request in requests) {
       expect(request.headers, isNot(contains('authorization')));
       expect(request.headers, isNot(contains('x-api-key')));
     }
     expect(
-      requests[5].url.queryParameters,
-      {'menuOnly': 'true'},
+      requests[4].url.queryParameters,
+      {'fulfillmentMethod': 'delivery'},
     );
+    expect(
+      requests[6].url.queryParameters,
+      {'menuOnly': 'true', 'channel': 'online'},
+    );
+    client.close();
+  });
+
+  test('readiness rejects unsupported published fulfillment methods locally',
+      () async {
+    var requestCount = 0;
+    final client = CraveStorefrontClient(
+      baseUri: Uri.parse('https://api.example.test'),
+      merchantSlug: 'example-merchant',
+      httpClient: MockClient((_) async {
+        requestCount += 1;
+        return http.Response('{}', 200);
+      }),
+    );
+    final unsupported = FulfillmentMethod.values.firstWhere(
+      (value) => value.wireValue == 'robot_delivery',
+    );
+
+    await expectLater(
+      client.locations.getOrderingReadiness(
+        'location_01',
+        fulfillmentMethod: unsupported,
+      ),
+      throwsA(
+        isA<ArgumentError>().having(
+          (error) => error.message,
+          'message',
+          isNot(contains(unsupported.wireValue)),
+        ),
+      ),
+    );
+    expect(requestCount, 0);
     client.close();
   });
 
@@ -141,7 +201,8 @@ void main() {
     );
 
     await expectLater(
-      client.menus.getForLocation('location_01', orderDate: '2026-08-10'),
+      client.menus.getForLocation('location_01',
+          channel: MenuChannel.online, orderDate: '2026-08-10'),
       throwsA(isA<StorefrontConfigurationException>()),
     );
     client.close();

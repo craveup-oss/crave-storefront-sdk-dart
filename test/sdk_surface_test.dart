@@ -15,6 +15,7 @@ void main() {
       'locations.get': client.locations.get,
       'locations.calculateDistance': client.locations.calculateDistance,
       'locations.listTimeIntervals': client.locations.listTimeIntervals,
+      'locations.getOrderingReadiness': client.locations.getOrderingReadiness,
       'locations.getGratuity': client.locations.getGratuity,
       'checkout.createPaymentIntent': client.checkout.createPaymentIntent,
       'checkout.getOrderResult': client.checkout.getOrderResult,
@@ -22,6 +23,8 @@ void main() {
       'checkout.exchangeHandoff': client.checkout.exchangeHandoff,
       'ratings.submit': client.ratings.submit,
       'menus.getForLocation': client.menus.getForLocation,
+      'products.previewConfiguration': client.products.previewConfiguration,
+      'carts.updateDietaryPreferences': client.carts.updateDietaryPreferences,
       'products.getForLocation': client.products.getForLocation,
       'merchants.get': client.merchants.get,
       'orderingSessions.start': client.orderingSessions.start,
@@ -71,7 +74,7 @@ void main() {
         .toSet();
 
     expect(implemented.keys.toSet(), declared);
-    expect(implemented, hasLength(49));
+    expect(implemented, hasLength(52));
     client.close();
   });
 }
